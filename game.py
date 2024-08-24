@@ -5,19 +5,19 @@ pygame.init()
 screen = pygame.display.set_mode((800,750))
 pygame.display.set_caption('Escaping Big Brother')
 
-programIcon = pygame.image.load('Facial_Detection_Falling_Object_Game/1984-bbimg.jpeg').convert()
+programIcon = pygame.image.load('1984-bbimg.jpeg').convert()
 pygame.display.set_icon(programIcon)
 
-eye = pygame.image.load('Facial_Detection_Falling_Object_Game/falling_objects/eye.png').convert_alpha()
+eye = pygame.image.load('falling_objects/eye.png').convert_alpha()
 eye = pygame.transform.scale(eye, (100, 100))
 
-book = pygame.image.load("Facial_Detection_Falling_Object_Game/falling_objects/book.png").convert_alpha()
+book = pygame.image.load("falling_objects/book.png").convert_alpha()
 book = pygame.transform.scale(book, (160,120))
 
-player = pygame.image.load("Facial_Detection_Falling_Object_Game/box.png").convert_alpha()
+player = pygame.image.load("box.png").convert_alpha()
 player = pygame.transform.scale(player, (200,200))
 
-background = pygame.image.load('Facial_Detection_Falling_Object_Game/cityscape.png').convert()
+background = pygame.image.load('cityscape.png').convert()
 floor_background = pygame.Surface((800, 50))
 floor_background.fill("#310108")
 sky_background = pygame.Surface((800,300))
