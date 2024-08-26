@@ -13,6 +13,7 @@ pygame.display.set_caption('Escaping Big Brother')
 programIcon = pygame.image.load('1984-bbimg.jpeg').convert()
 pygame.display.set_icon(programIcon)
 my_font = pygame.font.SysFont('Arial', 15)
+end_font = pygame.font.SysFont('Arial', 30)
 
 # Represents a falling object (object the player either avoids or tries to obtain)
 class FallingObject():
@@ -133,12 +134,16 @@ while True:
         screen.blit(score, (700, 20))
 
         if player.collision(eyes_list):
-            game_active = False
+            game_active = False                                         # If collision w/ eye, end game
         elif pygame.Rect.colliderect(player.rect, b.rect):
             player.increase_score()                                     # If collision w/ book, increase score
             b.rect.midbottom = (random.randrange(0, WINDOW_X), 0)       # Send book to top of screen (disappear)
     else:
-        screen.fill("darkblue")
+        screen.fill("#160121")
+        display1 = end_font.render('You lost!', True, "white", None)
+        display2 = end_font.render(f'You Scored: {player.score} points', True, "white", None)
+        screen.blit(display1, (350, 200))
+        screen.blit(display2, (275, 350))
 
     pygame.display.flip()
     clock.tick(120)
