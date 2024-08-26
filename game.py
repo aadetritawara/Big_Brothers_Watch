@@ -27,7 +27,7 @@ class Eye(FallingObject):
     def __init__(self, x_pos, y_pos, speed) -> None:
         super().__init__(x_pos, y_pos, speed)
         self.img = pygame.image.load('falling_objects/eye.png').convert_alpha()
-        self.img = pygame.transform.scale(self.img, (75, 75))
+        self.img = pygame.transform.scale(self.img, (65, 65))
         self.rect = self.img.get_rect(midbottom = (x_pos, y_pos))
 
     def move(self):
@@ -39,7 +39,7 @@ class Book(FallingObject):
     def __init__(self, x_pos, y_pos, speed) -> None:
         super().__init__(x_pos, y_pos, speed)
         self.img = pygame.image.load("falling_objects/book.png").convert_alpha()
-        self.img = pygame.transform.scale(self.img, (100,75))
+        self.img = pygame.transform.scale(self.img, (90,65))
         self.rect = self.img.get_rect(midbottom = (x_pos, y_pos))
     
     def move(self):
@@ -50,8 +50,8 @@ class Book(FallingObject):
 class Player():
     def __init__(self, x_pos) -> None:
         self.img = pygame.image.load("box.png").convert_alpha()
-        self.img = pygame.transform.scale(self.img, (200,200))
-        self.rect = self.img.get_rect(midbottom = (400, 725))
+        self.img = pygame.transform.scale(self.img, (100,100))
+        self.rect = self.img.get_rect(midbottom = (400, 700))
         self.x_pos = x_pos
         self.score = 0
 
