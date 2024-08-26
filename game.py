@@ -126,8 +126,7 @@ while True:
             player.rect.move_ip(-5, 0)  # Move left
         if keys[pygame.K_RIGHT]:
             player.rect.move_ip(5, 0)   # Move right
-        if keys[pygame.K_SPACE]:
-            game_active = True          # Restart game if space pressed
+        
 
         # Score text rendering
         score = my_font.render(f"Score: {player.score}", True, "lightgrey", None)
@@ -145,6 +144,7 @@ while True:
         screen.blit(display1, (350, 200))
         screen.blit(display2, (275, 350))
 
+                    
     pygame.display.flip()
     clock.tick(120)
 
