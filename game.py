@@ -1,6 +1,7 @@
 from typing import Any
 import pygame
 from sys import exit
+import random
 
 pygame.init()
 
@@ -15,24 +16,33 @@ my_font = pygame.font.SysFont('Arial', 15)
 
 # Represents a falling object (object the player either avoids or tries to obtain)
 class FallingObject():
-    def __init__(self, x_pos, y_pos) -> None:
+    def __init__(self, x_pos, y_pos, speed) -> None:
         self.x_pos = x_pos
         self.y_pos = y_pos
+        self.speed = speed
+
 
 # Represents an eye object with an associated image, x position, and y position on the screen
 class Eye(FallingObject):
-    def __init__(self, x_pos, y_pos) -> None:
-        super().__init__(x_pos, y_pos)
+    def __init__(self, x_pos, y_pos, speed) -> None:
+        super().__init__(x_pos, y_pos, speed)
         self.img = pygame.image.load('falling_objects/eye.png').convert_alpha()
         self.img = pygame.transform.scale(self.img, (100, 100))
+        self.rect = self.img.get_rect(midbottom = (x_pos, y_pos))
 
+    def move(self):
+        self.rect.move_ip(0, + self.speed) # move by object's defined speed
 
 # Represents a book object with an associated image, x position, and y position on the screen
-class Book():
-    def __init__(self, x_pos, y_pos) -> None:
-        super().__init__(x_pos, y_pos)
+class Book(FallingObject):
+    def __init__(self, x_pos, y_pos, speed) -> None:
+        super().__init__(x_pos, y_pos, speed)
         self.img = pygame.image.load("falling_objects/book.png").convert_alpha()
         self.img = pygame.transform.scale(self.img, (160,120))
+        self.rect = self.img.get_rect(midbottom = (x_pos, y_pos))
+    
+    def move(self):
+        self.rect.move_ip(0, + self.speed) # move by object's defined speed
 
 # Represents the player with an associated image, x position on the screen, and score counter
 class Player():
@@ -52,6 +62,11 @@ class Player():
         elif self.rect.right > WINDOW_X:
             self.rect.right = WINDOW_X
 
+    def collision(self, falling_objects: list):
+        # Test to see if any object in the list collides:
+        if pygame.Rect.collideobjects(self.rect, falling_objects):
+            return True
+
 # Getting background images loaded into variables
 background = pygame.image.load('cityscape.png').convert()
 floor_background = pygame.Surface((800, 50))
@@ -65,8 +80,17 @@ clock = pygame.time.Clock()
 # Setting some constants
 player_x_pos = 400
 player_y_pos = 530
-falling_gravity = 2
 player = Player(player_x_pos)
+game_active = True
+
+# Instantiating falling objects with x coord & speed and placing them in a list
+falling_objects = []
+speeds = [1,2,3]
+for i in range(3):
+    e = Eye(random.randrange(0, WINDOW_X), 0, speeds[i])
+    falling_objects.append(e)
+b = Book(random.randrange(0, WINDOW_X), 0, 2)
+falling_objects.append(b)
 
 while True:
     for event in pygame.event.get():
@@ -74,38 +98,41 @@ while True:
             pygame.quit()
             exit()
 
-    # Setting background images on screen
-    screen.blit(sky_background, (0,0))
-    screen.blit(background, (0,300))
-    screen.blit(floor_background, (0, 650))
+    if game_active:
+        # Setting background images on screen
+        screen.blit(sky_background, (0,0))
+        screen.blit(background, (0,300))
+        screen.blit(floor_background, (0, 650))
 
-    a = Eye(10,10)
-    screen.blit(a.img, (a.x_pos, a.y_pos))
+        # Simulate objects falling from top of screen
+        for obj in falling_objects:
+            screen.blit(obj.img, obj.rect)
+            obj.move()
 
-    player.correct_out_of_bounds_x()
-    screen.blit(player.img, player.rect)
+        # Check if player is out of bounds and place it within screen bounds
+        player.correct_out_of_bounds_x()
+        screen.blit(player.img, player.rect)
 
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        player.rect.move_ip(-5, 0)  # Move left
-    if keys[pygame.K_RIGHT]:
-        player.rect.move_ip(5, 0) # Move right
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            player.rect.move_ip(-5, 0)  # Move left
+        if keys[pygame.K_RIGHT]:
+            player.rect.move_ip(5, 0)   # Move right
+        if keys[pygame.K_SPACE]:
+            game_active = True          # Restart game if space pressed
 
+        # Score text rendering
+        score = my_font.render(f"Score: {player.score}", True, "lightgrey", None)
+        screen.blit(score, (700, 20))
 
-    b = Eye(400,30)
-    # current objects on the screen
-    current_falling_objects = [a, b]
-
-    ''' 
-    # Test to see if any object in the list collides:
-    if pygame.Rect.collideobjects(player.rect, current_falling_objects):
-        pygame.quit()
-        exit()
-    '''
-
-    # Score text rendering
-    score = my_font.render(f"Score: {player.score}", True, "lightgrey", None)
-    screen.blit(score, (700, 20))
+        if player.collision(falling_objects):
+            game_active = False
+    else:
+        screen.fill("darkblue")
 
     pygame.display.flip()
     clock.tick(120)
+
+
+
+    
