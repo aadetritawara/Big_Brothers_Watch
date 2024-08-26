@@ -27,22 +27,24 @@ class Eye(FallingObject):
     def __init__(self, x_pos, y_pos, speed) -> None:
         super().__init__(x_pos, y_pos, speed)
         self.img = pygame.image.load('falling_objects/eye.png').convert_alpha()
-        self.img = pygame.transform.scale(self.img, (100, 100))
+        self.img = pygame.transform.scale(self.img, (75, 75))
         self.rect = self.img.get_rect(midbottom = (x_pos, y_pos))
 
     def move(self):
         self.rect.move_ip(0, + self.speed) # move by object's defined speed
+
 
 # Represents a book object with an associated image, x position, and y position on the screen
 class Book(FallingObject):
     def __init__(self, x_pos, y_pos, speed) -> None:
         super().__init__(x_pos, y_pos, speed)
         self.img = pygame.image.load("falling_objects/book.png").convert_alpha()
-        self.img = pygame.transform.scale(self.img, (160,120))
+        self.img = pygame.transform.scale(self.img, (100,75))
         self.rect = self.img.get_rect(midbottom = (x_pos, y_pos))
     
     def move(self):
         self.rect.move_ip(0, + self.speed) # move by object's defined speed
+
 
 # Represents the player with an associated image, x position on the screen, and score counter
 class Player():
@@ -106,6 +108,8 @@ while True:
 
         # Simulate objects falling from top of screen
         for obj in falling_objects:
+            if obj.rect.top > WINDOW_Y:
+                obj.rect.midbottom = (random.randrange(0, WINDOW_X), 0)
             screen.blit(obj.img, obj.rect)
             obj.move()
 
