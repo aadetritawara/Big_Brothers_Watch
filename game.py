@@ -87,12 +87,14 @@ game_active = True
 
 # Instantiating falling objects with x coord & speed and placing them in a list
 falling_objects = []
+eyes_list = []
 speeds = [1,2,3]
 for i in range(3):
     e = Eye(random.randrange(0, WINDOW_X), 0, speeds[i])
-    falling_objects.append(e)
+    falling_objects.append(e), eyes_list.append(e)
 b = Book(random.randrange(0, WINDOW_X), 0, 2)
 falling_objects.append(b)
+
 
 while True:
     for event in pygame.event.get():
@@ -117,6 +119,7 @@ while True:
         player.correct_out_of_bounds_x()
         screen.blit(player.img, player.rect)
 
+        # Handling player movements  !!! CHANGE FOR OBJECT DETECTION
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             player.rect.move_ip(-5, 0)  # Move left
@@ -129,8 +132,11 @@ while True:
         score = my_font.render(f"Score: {player.score}", True, "lightgrey", None)
         screen.blit(score, (700, 20))
 
-        if player.collision(falling_objects):
+        if player.collision(eyes_list):
             game_active = False
+        elif pygame.Rect.colliderect(player.rect, b.rect):
+            player.increase_score()                                     # If collision w/ book, increase score
+            b.rect.midbottom = (random.randrange(0, WINDOW_X), 0)       # Send book to top of screen (disappear)
     else:
         screen.fill("darkblue")
 
