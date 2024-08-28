@@ -2,6 +2,10 @@ from typing import Any
 import pygame
 from sys import exit
 import random
+import cv2
+import mediapipe as mp
+from mediapipe.tasks.python import vision
+import threading
 
 pygame.init()
 
@@ -14,6 +18,7 @@ programIcon = pygame.image.load('1984-bbimg.jpeg').convert()
 pygame.display.set_icon(programIcon)
 my_font = pygame.font.SysFont('Arial', 15)
 end_font = pygame.font.SysFont('Arial', 30)
+clock = pygame.time.Clock()
 
 # Represents a falling object (object the player either avoids or tries to obtain)
 class FallingObject():
@@ -77,8 +82,6 @@ floor_background.fill("#310108")
 sky_background = pygame.Surface((800,300))
 sky_background.fill("#8a041b")
 
-
-clock = pygame.time.Clock()
 
 # Setting some constants
 player_x_pos = 400
@@ -146,7 +149,7 @@ while True:
 
                     
     pygame.display.flip()
-    clock.tick(120)
+    clock.tick(60)
 
 
 
