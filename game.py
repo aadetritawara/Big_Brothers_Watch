@@ -2,10 +2,12 @@ from typing import Any
 import pygame
 from sys import exit
 import random
+import threading
 import cv2
 import mediapipe as mp
+from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
-import threading
+import time
 
 pygame.init()
 
@@ -100,6 +102,71 @@ b = Book(random.randrange(0, WINDOW_X), 0, 2)
 falling_objects.append(b)
 
 
+# Initializing x_cur and x_prev !!! TO-DO
+x_cur = None
+x_prev = None
+# Setting a lock that will be changing the value of x_prev in both threads
+x_lock = threading.Lock()
+
+
+# Setting up face detection thread
+def face_detection():
+    global x_cur, x_prev
+
+    model_path = 'blaze_face_short_range.tflite'
+
+    BaseOptions = mp.tasks.BaseOptions
+    FaceDetector = mp.tasks.vision.FaceDetector
+    FaceDetectorOptions = mp.tasks.vision.FaceDetectorOptions
+    FaceDetectorResult = mp.tasks.vision.FaceDetectorResult
+    VisionRunningMode = mp.tasks.vision.RunningMode
+
+    def print_result(result: FaceDetectorResult, output_image: mp.Image, timestamp_ms: int): # type: ignore
+        global x_cur, x_prev
+        if result.detections:
+            x_cur = get_x_value(result)             # This continuously updates the player's current head position
+            x_lock.acquire()                                
+            if x_prev is None:                      # This initializes x_prev at the start with player's original head position
+                x_prev = get_x_value(result)
+            x_lock.release()
+        else:
+            return "No face detected"
+
+    options = FaceDetectorOptions(
+        base_options=BaseOptions(model_asset_path=model_path),
+        running_mode=VisionRunningMode.LIVE_STREAM,
+        result_callback=print_result)
+
+    def get_x_value(detection_result):
+        for detection in detection_result.detections:
+            x = detection.bounding_box.origin_x + (detection.bounding_box.width/2)
+            return x
+
+    with FaceDetector.create_from_options(options) as detector:
+        cam = cv2.VideoCapture(1)  # Use the default webcam
+        
+        while cam.isOpened():
+            success, img = cam.read()
+            if not success:
+                print("Failed to read from camera")
+                break
+
+            # Convert the frame received from OpenCV to a MediaPipe’s Image object.
+            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img)
+            
+            # Get the current time in milliseconds
+            frame_timestamp_ms = int(time.time() * 1000)
+            
+            # Perform face detection asynchronously
+            detector.detect_async(mp_image, frame_timestamp_ms)
+
+        cam.release()
+        cv2.destroyAllWindows()
+
+# stop this motion detection thread after all other code is completed
+threading.Thread(target = face_detection, daemon=True).start()
+
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -123,12 +190,22 @@ while True:
         player.correct_out_of_bounds_x()
         screen.blit(player.img, player.rect)
 
-        # Handling player movements  !!! CHANGE FOR OBJECT DETECTION
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            player.rect.move_ip(-5, 0)  # Move left
-        if keys[pygame.K_RIGHT]:
-            player.rect.move_ip(5, 0)   # Move right
+        # Handling player movements with a keyboard version
+        # keys = pygame.key.get_pressed()
+        # if keys[pygame.K_LEFT]:
+        #     player.rect.move_ip(-5, 0)  # Move left
+        # if keys[pygame.K_RIGHT]:
+        #     player.rect.move_ip(5, 0)   # Move right
+        
+        # If x-coordinates moved > 20 coordinates, move player 20 units left/right on screen
+        # Then set x_current = x_prev if above conditions are true
+        if x_cur is not None and x_prev is not None and abs(x_prev - x_cur) >= 20:
+            if x_cur > x_prev: # move left
+                player.rect.move_ip(-20, 0)
+                x_prev = x_cur
+            else:  # move right
+                player.rect.move_ip(20, 0) 
+                x_prev = x_cur
         
 
         # Score text rendering
