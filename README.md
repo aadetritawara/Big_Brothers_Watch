@@ -13,6 +13,8 @@ ___
 ## Methods
 
 I utilized Mediapipe, a library containing various pre-trained models for major vision-related tasks. In my case, I used the short-range BlazeFace model for face detection. The model’s lightweight nature and high accuracy were ideal for my game, ensuring smooth and fast responses. I used CV2 for Python to get the user’s webcam information. This information was then passed on to the BlazeFace model, from which I continuously obtained the x-coordinates of the player’s head position.
+
 Pygame was my main library for the game’s user interface and game mechanics.
+
 Finally, I used threading to prevent latency and run the motion detection thread and game thread asynchronously.
  
