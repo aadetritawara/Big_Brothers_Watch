@@ -1,4 +1,4 @@
-# Motion Detection Falling Object Game
+# Big Brother's Watch
 ![image](https://github.com/user-attachments/assets/7ea38e44-a3e9-4f1e-be63-ff3970755a10)
 
 This is a game that detects the user's face and allows them to control the movement of the player in the game using left/right head movements. I was inspired by the book 1984 by George Orwell as I was in the process of reading it at the time of the creation of this game. In this game, the player must avoid the 'eye', which symbolizes surveillance and capture the 'journal', which represents autonomy and freedom of thought. Hitting an eye will instantly end the game, while collecting journals increases the player's score. I implemented an object-oriented design for this project. 
